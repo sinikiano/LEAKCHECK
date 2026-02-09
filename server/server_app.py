@@ -87,9 +87,9 @@ class ServerApp(tk.Tk):
         self._flask_app = None
         self._server_running = False
 
-        init_db()
         self._build_ui()
-        self._refresh_stats()
+        # Heavy DB init + stats in background so GUI doesn't freeze
+        threading.Thread(target=self._initial_load, daemon=True).start()
 
     # ── helpers ──────────────────────────────
 
@@ -291,16 +291,32 @@ class ServerApp(tk.Tk):
                   bg=BG3, fg=ACCENT2, relief="flat", padx=10, pady=4,
                   command=self._repack_pages).pack(side="left", padx=4)
 
+    def _initial_load(self):
+        """Runs in a background thread — init DB then refresh stats."""
+        try:
+            init_db()
+        except Exception as e:
+            self.after(0, self._log, f"DB init error: {e}", "err")
+        self._refresh_stats_bg()
+
     def _refresh_stats(self):
+        """Called from UI buttons — dispatches to background thread."""
+        threading.Thread(target=self._refresh_stats_bg, daemon=True).start()
+
+    def _refresh_stats_bg(self):
+        """Fetch stats off the main thread, then update UI vars on main."""
         try:
             s = get_db_stats()
-            self._stat_vars["leak_data"].set(f"{get_leak_data_count():,}")
-            self._stat_vars["db_size"].set(f"{s['db_size_mb']:.1f} MB")
-            self._stat_vars["active_users"].set(str(s.get("active_users_24h", 0)))
-            self._stat_vars["queries_1h"].set(str(s.get("queries_1h", 0)))
-            self._stat_vars["queries_24h"].set(str(s.get("queries_24h", 0)))
+            count = s.get("leak_data_count", 0)
+            def _update():
+                self._stat_vars["leak_data"].set(f"{count:,}")
+                self._stat_vars["db_size"].set(f"{s['db_size_mb']:.1f} MB")
+                self._stat_vars["active_users"].set(str(s.get("active_users_24h", 0)))
+                self._stat_vars["queries_1h"].set(str(s.get("queries_1h", 0)))
+                self._stat_vars["queries_24h"].set(str(s.get("queries_24h", 0)))
+            self.after(0, _update)
         except Exception as e:
-            self._log(f"Stats error: {e}", "err")
+            self.after(0, self._log, f"Stats error: {e}", "err")
 
     def _maintain_db(self):
         def _do():

@@ -88,10 +88,11 @@ def get_db_stats() -> dict:
     try:
         cur = conn.cursor()
 
-        # Count email:password pairs in leak_data
+        # Fast approximate count via MAX(rowid) — avoids full table scan on large DBs
         try:
-            cur.execute("SELECT COUNT(*) FROM leak_data")
-            total = cur.fetchone()[0]
+            cur.execute("SELECT MAX(rowid) FROM leak_data")
+            row = cur.fetchone()
+            total = row[0] if row and row[0] else 0
         except Exception:
             total = 0
 
@@ -385,12 +386,13 @@ def log_search(user_key: str, email: str, result_count: int):
 
 
 def get_leak_data_count() -> int:
-    """Return total number of email:password pairs in leak_data."""
+    """Return approximate row count of leak_data (fast, no full scan)."""
     conn = _get_conn()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM leak_data")
-        count = cur.fetchone()[0]
+        cur.execute("SELECT MAX(rowid) FROM leak_data")
+        row = cur.fetchone()
+        count = row[0] if row and row[0] else 0
     finally:
         conn.close()
     return count
