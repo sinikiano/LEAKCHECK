@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Update — LEAKCHECK Admin{% endblock %}
+{% block content %}
+<h1>Push Client Update</h1>
+
+<!-- Current Update Info -->
+<h2>Current Update</h2>
+{% if meta %}
+<div class="cards">
+    <div class="card">
+        <div class="label">Version</div>
+        <div class="value accent">v{{ meta.version }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Filename</div>
+        <div class="value" style="font-size:14px;">{{ meta.filename }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Published</div>
+        <div class="value" style="font-size:14px;">{{ meta.date }}</div>
+    </div>
+</div>
+<table>
+    <tr><th>SHA-256</th><td class="mono text-sm">{{ meta.sha256 }}</td></tr>
+    {% if meta.changelog %}
+    <tr><th>Changelog</th><td class="text-sm" style="white-space:pre-wrap;">{{ meta.changelog }}</td></tr>
+    {% endif %}
+</table>
+{% else %}
+<p class="text-dim mb-2">No update has been pushed yet.</p>
+{% endif %}
+
+<!-- Push New Update -->
+<h2>Push New Update</h2>
+<form method="POST" enctype="multipart/form-data">
+    <div class="form-row">
+        <div class="form-group">
+            <label>Client File (.exe / .py)</label>
+            <input type="file" name="file" required
+                   style="background:var(--bg3);border:1px solid var(--dim);color:var(--fg);
+                          font-family:inherit;font-size:12px;padding:6px 10px;border-radius:4px;">
+        </div>
+        <div class="form-group">
+            <label>Version</label>
+            <input type="text" name="version" placeholder="e.g. 2.1.0" required style="width:160px;">
+        </div>
+    </div>
+    <div class="form-group mb-2">
+        <label>Changelog (optional)</label>
+        <textarea name="changelog" rows="4" placeholder="What's new in this version..."></textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Push Update</button>
+</form>
+{% endblock %}

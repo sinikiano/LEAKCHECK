@@ -203,7 +203,9 @@
                 <a href="{{ url_for('admin_web.files_page') }}" class="{% if request.endpoint == 'admin_web.files_page' %}active{% endif %}">Files</a>
                 <a href="{{ url_for('admin_web.import_page') }}" class="{% if request.endpoint == 'admin_web.import_page' %}active{% endif %}">Import</a>
                 <a href="{{ url_for('admin_web.maintenance_page') }}" class="{% if request.endpoint == 'admin_web.maintenance_page' %}active{% endif %}">Maintenance</a>
+                <a href="{{ url_for('admin_web.update_page') }}" class="{% if request.endpoint == 'admin_web.update_page' %}active{% endif %}">Update</a>
                 <a href="{{ url_for('admin_web.logs_page') }}" class="{% if request.endpoint == 'admin_web.logs_page' %}active{% endif %}">Logs</a>
+                <a href="{{ url_for('admin_web.server_log_page') }}" class="{% if request.endpoint == 'admin_web.server_log_page' %}active{% endif %}">Server Log</a>
                 <a href="{{ url_for('admin_web.logout') }}">Logout</a>
             </nav>
         </aside>

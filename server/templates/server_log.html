@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Server Log — LEAKCHECK Admin{% endblock %}
+{% block content %}
+<h1>Server Log</h1>
+
+<div class="form-row mb-2">
+    <div class="form-group">
+        <label>Lines to show</label>
+        <select id="lineCount" onchange="location.href='?lines='+this.value" style="width:100px;">
+            {% for n in [100, 250, 500, 1000, 2000] %}
+            <option value="{{ n }}" {% if lines_count == n %}selected{% endif %}>{{ n }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <a href="{{ url_for('admin_web.server_log_page', lines=lines_count) }}" class="btn btn-info btn-sm" style="margin-bottom:2px;">Refresh</a>
+    <a href="{{ url_for('admin_web.server_log_download') }}" class="btn btn-success btn-sm" style="margin-bottom:2px;">Download Full Log</a>
+</div>
+
+<p class="text-dim text-sm mb-1">Showing last {{ lines_count }} lines of <strong>{{ log_file }}</strong> ({{ log_size }})</p>
+
+<div style="background:var(--bg2);border:1px solid var(--bg3);border-radius:6px;padding:12px;
+            max-height:70vh;overflow:auto;font-size:11px;line-height:1.6;white-space:pre-wrap;
+            word-break:break-all;font-family:'Consolas','Courier New',monospace;">
+{{ log_content }}
+</div>
+{% endblock %}

@@ -13,9 +13,10 @@ from datetime import datetime, timezone
 
 from flask import (Blueprint, request, redirect, url_for,
                    render_template, session, flash, jsonify, send_file)
-from config import CONFIG, BASE_DIR, MESSAGES_FILE, SHARED_DIR
+from config import CONFIG, BASE_DIR, MESSAGES_FILE, SHARED_DIR, UPDATES_DIR, UPDATE_META
 from auth import (generate_key, revoke_key, list_all_keys, reset_hwid,
                   get_key_info, PLANS)
+import hashlib
 from database import (get_db_stats, init_referral_table, optimize_db,
                       vacuum_db, get_table_sizes, rebuild_indexes,
                       purge_old_logs, list_all_referrals, get_per_user_summary,
@@ -461,3 +462,109 @@ def import_page():
         return redirect(url_for("admin_web.import_page"))
 
     return render_template("import.html")
+
+
+# ──────────────────────────────────────────────
+#  Push Client Update
+# ──────────────────────────────────────────────
+
+@admin_web_bp.route("/update", methods=["GET", "POST"])
+@_login_required
+def update_page():
+    if request.method == "POST":
+        if "file" not in request.files or not request.files["file"].filename:
+            flash("No file selected.", "error")
+            return redirect(url_for("admin_web.update_page"))
+        version = request.form.get("version", "").strip()
+        if not version:
+            flash("Version is required.", "error")
+            return redirect(url_for("admin_web.update_page"))
+
+        changelog = request.form.get("changelog", "")
+        uploaded = request.files["file"]
+        filename = uploaded.filename
+
+        os.makedirs(UPDATES_DIR, exist_ok=True)
+        save_path = os.path.join(UPDATES_DIR, filename)
+        uploaded.save(save_path)
+
+        sha = hashlib.sha256()
+        with open(save_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                sha.update(chunk)
+
+        from datetime import timezone as _tz
+        meta = {
+            "version": version,
+            "filename": filename,
+            "sha256": sha.hexdigest(),
+            "changelog": changelog,
+            "date": datetime.now(_tz.utc).isoformat(),
+        }
+        with open(UPDATE_META, "w") as f:
+            json.dump(meta, f, indent=4)
+
+        from logger import log_activity
+        log_activity(CONFIG["admin_key"], "push_update",
+                     f"v{version} file={filename}", request.remote_addr or "")
+        flash(f"Update v{version} pushed successfully ({filename}).", "success")
+        return redirect(url_for("admin_web.update_page"))
+
+    # GET — load current meta
+    meta = None
+    if os.path.isfile(UPDATE_META):
+        try:
+            with open(UPDATE_META) as f:
+                meta = json.load(f)
+        except Exception:
+            pass
+    return render_template("update.html", meta=meta)
+
+
+# ──────────────────────────────────────────────
+#  Server Log Viewer
+# ──────────────────────────────────────────────
+
+@admin_web_bp.route("/server-log")
+@_login_required
+def server_log_page():
+    lines_count = request.args.get("lines", 250, type=int)
+    log_file = CONFIG.get("log_file", "server.log")
+    log_path = os.path.join(BASE_DIR, log_file)
+
+    log_content = ""
+    log_size = "0 B"
+    if os.path.isfile(log_path):
+        size = os.path.getsize(log_path)
+        if size < 1024:
+            log_size = f"{size} B"
+        elif size < 1024 * 1024:
+            log_size = f"{size / 1024:.1f} KB"
+        else:
+            log_size = f"{size / (1024*1024):.1f} MB"
+
+        try:
+            with open(log_path, "r", encoding="utf-8", errors="replace") as f:
+                all_lines = f.readlines()
+            log_content = "".join(all_lines[-lines_count:])
+        except Exception as e:
+            log_content = f"Error reading log: {e}"
+    else:
+        log_content = "(log file not found)"
+
+    return render_template("server_log.html",
+                           log_content=log_content,
+                           log_file=log_file,
+                           log_size=log_size,
+                           lines_count=lines_count)
+
+
+@admin_web_bp.route("/server-log/download")
+@_login_required
+def server_log_download():
+    log_file = CONFIG.get("log_file", "server.log")
+    log_path = os.path.join(BASE_DIR, log_file)
+    if os.path.isfile(log_path):
+        return send_file(log_path, as_attachment=True, download_name=log_file)
+    flash("Log file not found.", "error")
+    return redirect(url_for("admin_web.server_log_page"))
