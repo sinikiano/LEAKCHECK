@@ -33,11 +33,36 @@ LEAKCHECK allows you to verify large combo lists (email:password) against a cent
 
 ## How It Works
 
-1. Obtain an API key (purchase via the built-in Binance Pay integration or from the admin).
+1. Obtain an API key (purchase directly from the client app or contact the admin).
 2. Load a combo list file (`email:password` format, one per line).
 3. The client validates, deduplicates, and sends combos in compressed batches.
 4. The server checks each combo against its leak database and returns the results.
 5. Combos **not found** in the database are returned as private -- export them as needed.
+
+---
+
+## Pricing
+
+API keys can be purchased directly from within the desktop or Android client using USDT (Tether) via Binance Pay. No external website or manual contact required -- the entire process is automated.
+
+| Plan       | Duration | Price (USDT) |
+|------------|----------|-------------:|
+| 1 Month    | 30 days  |        10.00 |
+| 3 Months   | 90 days  |        25.00 |
+| 6 Months   | 180 days |        45.00 |
+| 1 Year     | 365 days |        80.00 |
+| Lifetime   | Unlimited|       150.00 |
+
+**How to purchase:**
+
+1. Open the client app and navigate to the **Buy Key** tab.
+2. Enter a username and select a subscription plan.
+3. A unique USDT payment address and amount will be generated.
+4. Send the exact amount to the provided address on the specified network.
+5. Once the payment is confirmed on-chain, your API key is issued automatically.
+6. The key is displayed in the app and ready to use immediately.
+
+Payments are monitored automatically. Referral bonuses are available -- refer other users to earn additional subscription days on your account.
 
 ---
 
