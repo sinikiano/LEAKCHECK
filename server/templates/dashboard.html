@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — LEAKCHECK Admin{% endblock %}
+{% block content %}
+<h1>📊 Dashboard</h1>
+
+<div class="cards">
+    <div class="card">
+        <div class="label">Database Records</div>
+        <div class="value">{{ "{:,}".format(stats.total_records) }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Leak Data (email:pass)</div>
+        <div class="value">{{ "{:,}".format(stats.get('leak_data_count', 0)) }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Active Keys</div>
+        <div class="value green">{{ active_keys }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Total Keys</div>
+        <div class="value">{{ total_keys }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Orders (Paid)</div>
+        <div class="value green">{{ paid_orders }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Orders (Pending)</div>
+        <div class="value yellow">{{ pending_orders }}</div>
+    </div>
+</div>
+
+<h2>Recent Activity</h2>
+<table>
+    <thead>
+        <tr><th>Time</th><th>Action</th><th>Detail</th><th>IP</th><th>Duration</th></tr>
+    </thead>
+    <tbody>
+        {% for a in activity %}
+        <tr>
+            <td class="text-dim text-sm">{{ "%.0f"|format(a.timestamp) | int }}</td>
+            <td>{{ a.action }}</td>
+            <td class="text-sm truncate">{{ a.detail[:80] }}</td>
+            <td class="text-dim">{{ a.ip }}</td>
+            <td class="text-dim">{{ "%.0f"|format(a.duration_ms) }}ms</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Recent Uploads</h2>
+<table>
+    <thead>
+        <tr><th>Time</th><th>File</th><th>Records</th><th>New</th><th>IP</th></tr>
+    </thead>
+    <tbody>
+        {% for u in uploads %}
+        <tr>
+            <td class="text-dim text-sm">{{ "%.0f"|format(u.timestamp) | int }}</td>
+            <td>{{ u.filename }}</td>
+            <td>{{ "{:,}".format(u.record_count) }}</td>
+            <td class="green">{{ "{:,}".format(u.new_count) }}</td>
+            <td class="text-dim">{{ u.ip }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

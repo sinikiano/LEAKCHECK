@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEAKCHECK — Login</title>
+    <style>
+        :root { --bg: #0f0f1a; --bg2: #1a1a2e; --bg3: #16213e; --fg: #e0e0e0; --accent: #e94560; --accent2: #00d2ff; --dim: #555566; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-box {
+            background: var(--bg2);
+            border: 1px solid var(--bg3);
+            border-radius: 12px;
+            padding: 40px;
+            width: 360px;
+            text-align: center;
+        }
+        .login-box h1 { color: var(--accent); font-size: 24px; margin-bottom: 6px; }
+        .login-box p { color: var(--dim); font-size: 11px; margin-bottom: 24px; }
+        .login-box input {
+            width: 100%;
+            background: var(--bg3);
+            border: 1px solid var(--dim);
+            color: var(--fg);
+            font-family: inherit;
+            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            outline: none;
+            margin-bottom: 16px;
+        }
+        .login-box input:focus { border-color: var(--accent2); }
+        .login-box button {
+            width: 100%;
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .login-box button:hover { background: #d63a52; }
+        .flash { padding: 8px; border-radius: 4px; margin-bottom: 12px; font-size: 11px;
+                 background: rgba(233,69,96,0.15); border: 1px solid var(--accent); color: var(--accent); }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>LEAKCHECK</h1>
+        <p>Admin Panel — Enter your admin key to continue</p>
+
+        {% with messages = get_flashed_messages() %}
+            {% for msg in messages %}
+                <div class="flash">{{ msg }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST">
+            <input type="password" name="admin_key" placeholder="Admin API Key" autofocus required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</body>
+</html>

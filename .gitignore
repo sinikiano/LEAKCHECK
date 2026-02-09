@@ -1,0 +1,32 @@
+build/
+dist/
+__pycache__/
+*.pyc
+*.db
+*.db-shm
+*.db-wal
+*.spec
+*.log
+*.exe
+*.pem
+*.key
+.env
+venv/
+
+# Android build artifacts
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+*.apk
+
+# Gradle
+.gradle/
+
+# IDE
+.idea/
+*.iml
+
+# Keystore (don't push signing keys)
+*.jks
+*.keystore

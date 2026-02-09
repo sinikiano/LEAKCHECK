@@ -1,0 +1,10 @@
+{
+    "admin_key": "oOEvIZg1BDDZ96UOC1ViNcclDdWi7PIiQHr04fZsug0",
+    "port": 5000,
+    "max_combo_batch": 50000,
+    "rate_limit_per_minute": 300,
+    "binance_api_key": "",
+    "binance_api_secret": "",
+    "usdt_address": "",
+    "usdt_network": "TRC20"
+}

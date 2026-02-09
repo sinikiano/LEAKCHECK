@@ -1,0 +1,7 @@
+# LEAKCHECK — All dependencies
+# Server
+flask>=3.0
+# Client + Server
+requests>=2.31
+# Build
+pyinstaller>=6.0

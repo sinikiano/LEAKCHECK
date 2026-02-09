@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Keys — LEAKCHECK Admin{% endblock %}
+{% block content %}
+<h1>🔑 API Key Management</h1>
+
+<!-- Generate new key -->
+<h2>Generate New Key</h2>
+<form method="POST" action="{{ url_for('admin_web.keys_generate') }}">
+    <div class="form-row">
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Username" required>
+        </div>
+        <div class="form-group">
+            <label>Plan</label>
+            <select name="plan">
+                {% for k, v in plans.items() %}
+                <option value="{{ k }}">{{ v.label }}{% if v.days > 0 %} ({{ v.days }}d){% else %} (Lifetime){% endif %}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Generate Key</button>
+    </div>
+</form>
+
+<!-- Key list -->
+<h2>All Keys ({{ keys|length }})</h2>
+<table>
+    <thead>
+        <tr><th>Username</th><th>Plan</th><th>Created</th><th>Expires</th><th>Status</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for key, entry in keys.items() %}
+        <tr>
+            <td>
+                <strong>{{ entry.username }}</strong>
+                <br><span class="text-dim text-sm">{{ key[:20] }}...</span>
+            </td>
+            <td>{{ entry.get('plan_label', entry.get('plan', '?')) }}</td>
+            <td class="text-dim text-sm">{{ entry.get('created', '')[:10] }}</td>
+            <td class="text-dim text-sm">{{ entry.get('expires_at', 'never') if entry.get('expires_at') else 'never' }}</td>
+            <td>
+                {% if entry.get('active') %}
+                    <span class="badge badge-active">Active</span>
+                {% else %}
+                    <span class="badge badge-inactive">Inactive</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if entry.get('active') %}
+                <form method="POST" action="{{ url_for('admin_web.keys_revoke') }}" style="display:inline;">
+                    <input type="hidden" name="api_key" value="{{ key }}">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Revoke this key?')">Revoke</button>
+                </form>
+                {% endif %}
+                <form method="POST" action="{{ url_for('admin_web.keys_reset_hwid') }}" style="display:inline;">
+                    <input type="hidden" name="api_key" value="{{ key }}">
+                    <button type="submit" class="btn btn-info btn-sm">Reset HWID</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

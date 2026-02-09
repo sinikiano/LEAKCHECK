@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Orders — LEAKCHECK Admin{% endblock %}
+{% block content %}
+<h1>💳 Payment Orders</h1>
+
+<table>
+    <thead>
+        <tr><th>Order ID</th><th>Username</th><th>Plan</th><th>Amount</th><th>Status</th><th>Created</th><th>Paid At</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for oid, o in orders.items()|reverse %}
+        <tr>
+            <td class="mono">{{ oid }}</td>
+            <td>{{ o.username }}</td>
+            <td>{{ o.get('plan_label', o.plan) }}</td>
+            <td>${{ "%.4f"|format(o.amount) }}</td>
+            <td>
+                <span class="badge badge-{{ o.status }}">{{ o.status }}</span>
+            </td>
+            <td class="text-dim text-sm">{{ o.created_at[:16].replace('T', ' ') }}</td>
+            <td class="text-dim text-sm">{{ (o.paid_at or '')[:16].replace('T', ' ') }}</td>
+            <td>
+                {% if o.status == 'pending' %}
+                <form method="POST" action="{{ url_for('admin_web.orders_fulfill') }}" style="display:inline;">
+                    <input type="hidden" name="order_id" value="{{ oid }}">
+                    <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Fulfill this order manually?')">Fulfill</button>
+                </form>
+                <form method="POST" action="{{ url_for('admin_web.orders_cancel') }}" style="display:inline;">
+                    <input type="hidden" name="order_id" value="{{ oid }}">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancel?')">Cancel</button>
+                </form>
+                {% elif o.status == 'paid' and o.api_key %}
+                <span class="text-dim text-sm mono">{{ o.api_key[:16] }}...</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

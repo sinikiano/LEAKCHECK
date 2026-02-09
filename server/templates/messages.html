@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Messages — LEAKCHECK Admin{% endblock %}
+{% block content %}
+<h1>📢 Server Messages</h1>
+<p class="text-dim text-sm mb-2">Messages displayed to all users in the client app.</p>
+
+<!-- Add new message -->
+<h2>Add Message</h2>
+<form method="POST" action="{{ url_for('admin_web.messages_save') }}">
+    <div class="form-row">
+        <div class="form-group" style="flex:2;">
+            <label>Text</label>
+            <textarea name="text" placeholder="Enter message text..." rows="2"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Level</label>
+            <select name="level">
+                <option value="info">ℹ️ Info</option>
+                <option value="success">✅ Success</option>
+                <option value="warning">⚠️ Warning</option>
+                <option value="urgent">🚨 Urgent</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Add Message</button>
+    </div>
+</form>
+
+<!-- Current messages -->
+<h2>Active Messages ({{ messages|length }})</h2>
+<table>
+    <thead>
+        <tr><th>#</th><th>Text</th><th>Level</th><th>Date</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for msg in messages %}
+        <tr>
+            <td class="text-dim">{{ loop.index0 }}</td>
+            <td>{{ msg.text }}</td>
+            <td>
+                {% if msg.level == 'success' %}<span style="color:var(--green);">{{ msg.level }}</span>
+                {% elif msg.level == 'warning' %}<span style="color:var(--yellow);">{{ msg.level }}</span>
+                {% elif msg.level == 'urgent' %}<span style="color:var(--accent);">{{ msg.level }}</span>
+                {% else %}<span style="color:var(--accent2);">{{ msg.level }}</span>{% endif %}
+            </td>
+            <td class="text-dim text-sm">{{ msg.get('date', '') }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('admin_web.messages_delete') }}" style="display:inline;">
+                    <input type="hidden" name="index" value="{{ loop.index0 }}">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

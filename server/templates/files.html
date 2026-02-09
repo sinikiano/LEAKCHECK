@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Files — LEAKCHECK Admin{% endblock %}
+{% block content %}
+<h1>📁 Shared Files</h1>
+<p class="text-dim text-sm mb-2">Files available for download by authenticated users.</p>
+
+<!-- Upload -->
+<h2>Upload File</h2>
+<form method="POST" action="{{ url_for('admin_web.files_upload') }}" enctype="multipart/form-data">
+    <div class="form-row">
+        <div class="form-group">
+            <label>Select File</label>
+            <input type="file" name="file" style="color:var(--fg); font-family:inherit; font-size:12px;" required>
+        </div>
+        <button type="submit" class="btn btn-success">Upload</button>
+    </div>
+</form>
+
+<!-- File list -->
+<h2>Current Files ({{ files|length }})</h2>
+<table>
+    <thead>
+        <tr><th>Name</th><th>Size</th><th>Modified</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for f in files %}
+        <tr>
+            <td class="mono">{{ f.name }}</td>
+            <td class="text-dim">{{ f.size_mb }} MB</td>
+            <td class="text-dim text-sm">{{ f.modified }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('admin_web.files_delete') }}" style="display:inline;">
+                    <input type="hidden" name="filename" value="{{ f.name }}">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete {{ f.name }}?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
