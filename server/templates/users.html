@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Users — LEAKCHECK Admin{% endblock %}
+{% block content %}
+<h1>Users Activity</h1>
+
+<p class="text-dim mb-2">Aggregated per-user activity from all logs. Showing up to 500 users.</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Plan</th>
+            <th>Actions</th>
+            <th>Checks</th>
+            <th>Searches</th>
+            <th>Downloads</th>
+            <th>Last Active</th>
+            <th>Key (prefix)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td><strong>{{ u.username }}</strong></td>
+            <td>{{ u.plan }}</td>
+            <td>{{ "{:,}".format(u.total_actions) }}</td>
+            <td>{{ "{:,}".format(u.checks) }}</td>
+            <td>{{ "{:,}".format(u.searches) }}</td>
+            <td>{{ u.downloads }}</td>
+            <td class="text-dim text-sm">{{ u.last_active|epoch_to_date }}</td>
+            <td class="mono text-dim text-sm">{{ u.user_key[:16] }}...</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

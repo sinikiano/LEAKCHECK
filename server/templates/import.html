@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Import — LEAKCHECK Admin{% endblock %}
+{% block content %}
+<h1>Import Combo List</h1>
+
+<p class="text-dim mb-2">Upload a text file containing <code>email:password</code> pairs (one per line). Duplicates are automatically skipped.</p>
+
+<form method="POST" action="{{ url_for('admin_web.import_page') }}" enctype="multipart/form-data">
+    <div class="form-row">
+        <div class="form-group">
+            <label>Combo File (.txt)</label>
+            <input type="file" name="file" accept=".txt,.csv" required
+                   style="background:var(--bg3); border:1px solid var(--dim); color:var(--fg); padding:6px 10px; border-radius:4px;">
+        </div>
+        <button type="submit" class="btn btn-success" onclick="this.disabled=true; this.innerText='Importing...'; this.form.submit();">Upload &amp; Import</button>
+    </div>
+</form>
+
+<div class="mt-2">
+    <h2>Notes</h2>
+    <ul style="font-size:12px; color:var(--dim); list-style:disc; padding-left:20px; line-height:1.8;">
+        <li>Expected format: <code style="color:var(--accent2);">email:password</code> (one per line)</li>
+        <li>Lines without a colon separator are skipped</li>
+        <li>Duplicate email:password pairs are ignored (UNIQUE constraint)</li>
+        <li>Large files (100M+ lines) may take several minutes — do not close this tab</li>
+        <li>Import progress is batch-streamed (50,000 records per batch)</li>
+    </ul>
+</div>
+{% endblock %}

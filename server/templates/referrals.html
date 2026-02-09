@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Referrals — LEAKCHECK Admin{% endblock %}
+{% block content %}
+<h1>Referral Program</h1>
+
+<div class="cards mb-2">
+    <div class="card">
+        <div class="label">Total Referrals</div>
+        <div class="value">{{ referrals|length }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Total Bonus Days Awarded</div>
+        <div class="value green">{{ referrals|sum(attribute='bonus_days') }}</div>
+    </div>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Referrer</th>
+            <th>Referred</th>
+            <th>Bonus Days</th>
+            <th>Referrer Key (prefix)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in referrals %}
+        <tr>
+            <td class="text-dim text-sm">{{ r.created_at|epoch_to_date }}</td>
+            <td><strong>{{ r.referrer_name }}</strong></td>
+            <td>{{ r.referred_name }}</td>
+            <td class="green">+{{ r.bonus_days }}d</td>
+            <td class="mono text-dim text-sm">{{ r.referrer_key[:16] }}...</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if not referrals %}
+<p class="text-dim mt-2">No referrals recorded yet.</p>
+{% endif %}
+{% endblock %}

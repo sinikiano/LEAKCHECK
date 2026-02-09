@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — LEAKCHECK Admin{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="cards">
+    <div class="card">
+        <div class="label">Leak Records</div>
+        <div class="value">{{ "{:,}".format(stats.total_records) }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Database Size</div>
+        <div class="value">{{ stats.db_size_mb }} MB</div>
+    </div>
+    <div class="card">
+        <div class="label">Active Keys</div>
+        <div class="value green">{{ active_keys }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Total Keys</div>
+        <div class="value">{{ total_keys }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Orders (Paid)</div>
+        <div class="value green">{{ paid_orders }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Orders (Pending)</div>
+        <div class="value yellow">{{ pending_orders }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Revenue (USDT)</div>
+        <div class="value green">${{ "%.2f"|format(total_revenue) }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Active Users (24h)</div>
+        <div class="value accent">{{ stats.active_users_24h }}</div>
+    </div>
+    <div class="card">
+        <div class="label">Checks (1h / 24h)</div>
+        <div class="value">{{ stats.queries_1h }} / {{ stats.queries_24h }}</div>
+    </div>
+</div>
+
+<h2>Recent Activity</h2>
+<table>
+    <thead>
+        <tr><th>Time</th><th>Action</th><th>Detail</th><th>IP</th><th>Duration</th></tr>
+    </thead>
+    <tbody>
+        {% for a in activity %}
+        <tr>
+            <td class="text-dim text-sm">{{ a.timestamp|epoch_to_date }}</td>
+            <td>{{ a.action }}</td>
+            <td class="text-sm truncate">{{ a.detail[:80] }}</td>
+            <td class="text-dim">{{ a.ip }}</td>
+            <td class="text-dim">{{ "%.0f"|format(a.duration_ms) }}ms</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Recent Uploads</h2>
+<table>
+    <thead>
+        <tr><th>Time</th><th>File</th><th>Records</th><th>New</th><th>IP</th></tr>
+    </thead>
+    <tbody>
+        {% for u in uploads %}
+        <tr>
+            <td class="text-dim text-sm">{{ u.timestamp|epoch_to_date }}</td>
+            <td>{{ u.filename }}</td>
+            <td>{{ "{:,}".format(u.record_count) }}</td>
+            <td class="green">{{ "{:,}".format(u.new_count) }}</td>
+            <td class="text-dim">{{ u.ip }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if referrals %}
+<h2>Recent Referrals</h2>
+<table>
+    <thead>
+        <tr><th>Time</th><th>Referrer</th><th>Referred</th><th>Bonus Days</th></tr>
+    </thead>
+    <tbody>
+        {% for r in referrals %}
+        <tr>
+            <td class="text-dim text-sm">{{ r.created_at|epoch_to_date }}</td>
+            <td class="mono text-sm">{{ r.referrer_key[:16] }}...</td>
+            <td class="mono text-sm">{{ r.referred_key[:16] }}...</td>
+            <td class="green">+{{ r.bonus_days }}d</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}
